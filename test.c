@@ -46,15 +46,15 @@ int oneWayProperty(char * hashAlgo) {
 		randomString(message2);
 		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
-	} while (strncmp(hashValue1, hashValue2, 3)!=0);	//compare 3 byte character, which is 24 bits 
+	} while (memcmp(hashValue1, hashValue2, 3)!=0);	//compare 3 byte character, which is 24 bits 
 	printf("Cracked one way property after %d trials", count);
 	printf("Message 1: %s, hash: ", message1);
-	for(i = 0; i < 12; i++) {
+	for(i = 0; i < 3; i++) {
 		printf("%02x", hashValue1[i]);
 	}
 	printf("\n");
 	printf("Message 2: %s, hash: ", message2);
-	for(i = 0; i < 12; i++) {
+	for(i = 0; i < 3; i++) {
 		printf("%02x", hashValue2[i]);
 	}
 	return count;
@@ -71,15 +71,15 @@ int collisionFreeProperty(char * hashAlgo) {
 		randomString(message2);
 		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
-	} while (strncmp(hashValue1, hashValue2, 3)!=0);
+	} while (memcmp(hashValue1, hashValue2, 3)!=0);
 	printf("Cracked collision free property after %d trials\n", count);
 	printf("Message 1: %s, hash: ", message1);
-	for(i = 0; i < 12; i++) {
+	for(i = 0; i < 3; i++) {
 		printf("%02x", hashValue1[i]);
 	}
 	printf("\n");
 	printf("Message 2: %s, hash: ", message2);
-	for(i = 0; i < 12; i++) {
+	for(i = 0; i < 3; i++) {
 		printf("%02x", hashValue2[i]);
 	}
 	printf("\n");
