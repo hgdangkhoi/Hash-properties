@@ -39,7 +39,7 @@ int crackOneWayHash(char * hashAlgo) {
 		setRndStr(message2);
 		getHash(hashAlgo, message2, digt2);
 		count++;
-	} while (strncmp(digt1, digt2, 12)!=0);	
+	} while (strncmp(digt1, digt2, 3)!=0);	
 	printf("cracked after %d tries! same digest ", count, message1, message2);
 	for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
 	printf("\n");
@@ -57,7 +57,7 @@ int crackCollisionHash(char * hashAlgo) {
 		setRndStr(message2);
 		getHash(hashAlgo, message2, digt2);
 		count++;
-	} while (strncmp(digt1, digt2, 12)!=0);
+	} while (strncmp(digt1, digt2, 3)!=0);
 	printf("cracked after %d tries! same digest ", count);
 	for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
 	printf("\n");
