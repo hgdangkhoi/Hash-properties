@@ -6,7 +6,7 @@
 #include <openssl/evp.h>
 #include <time.h>
 
-const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 void hashFunction(char * hashAlgo, char *message, unsigned char *md_value) {
 	EVP_MD_CTX *mdctx;
@@ -29,22 +29,22 @@ void hashFunction(char * hashAlgo, char *message, unsigned char *md_value) {
 
 void randomString(char *message) {
 	int i;
-	for (i=0;i<sizeof(message);i++){
-		int index = rand() / (RAND_MAX / (sizeof(charset)-1));
+	for (i=0;i<3;i++){
+		int index = rand() % (int)(sizeof(charset)-1);
 		message[i] = charset[index];
 	}
 }
 
 int oneWayProperty(char * hashAlgo) {
-	char message1[7] = {0};
-	char message2[7] = {0};
+	char message1[4] = {0};
+	char message2[4] = {0};
 	unsigned char hashValue1[EVP_MAX_MD_SIZE], hashValue2[EVP_MAX_MD_SIZE];
 	
 	int count=0, i;
 	randomString(message1);    	
-	hashFunction(hashAlgo, message1, hashValue1);
+	hashFunction(hashAlgo, message1, hashValue1); //generate a random hash value
 	
-	do {    		
+	do {//find message2 so that hash value of message2 = hashValue1
 		randomString(message2);
 		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
@@ -59,19 +59,21 @@ int oneWayProperty(char * hashAlgo) {
 	for(i = 0; i < 3; i++) {
 		printf("%02x", hashValue2[i]);
 	}
+	printf("\n");
 	return count;
 }
 
 int collisionFreeProperty(char * hashAlgo) {
-	char message1[7] = {0};
-	char message2[7] = {0};
+	char message1[4] = {0};
+	char message2[4] = {0};
 	unsigned char hashValue1[EVP_MAX_MD_SIZE], hashValue2[EVP_MAX_MD_SIZE];	
 	int count=0, i;
 	
 	do {    	
 		randomString(message1);
-		hashFunction(hashAlgo, message1, hashValue1);
 		randomString(message2);
+		if (strncmp(message1, message2, 4)==0) continue;
+		hashFunction(hashAlgo, message1, hashValue1);
 		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
 	} while (memcmp(hashValue1, hashValue2, 3)!=0);
@@ -90,7 +92,8 @@ int collisionFreeProperty(char * hashAlgo) {
 }
 
 main(int argc, char *argv[])
-{
+{	
+	srand(time(0)); //use current time for random generator
 	char *hashAlgo;
 	hashAlgo = argv[1];
 	clock_t start, end;
