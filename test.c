@@ -5,8 +5,7 @@
 
 void getHash(char * hashAlgo, char *message, unsigned char *md_value) {
 	EVP_MD_CTX *mdctx;
-	const EVP_MD *md;
-	unsigned char value[EVP_MAX_MD_SIZE];
+	const EVP_MD *md;	
 	int md_len, i;
 	OpenSSL_add_all_digests();
 	md = EVP_get_digestbyname(hashAlgo);
@@ -20,52 +19,47 @@ void getHash(char * hashAlgo, char *message, unsigned char *md_value) {
 	EVP_DigestFinal_ex(mdctx, md_value, &md_len);
 	EVP_MD_CTX_destroy(mdctx);
 	
-	#strncpy(md_value, value, 12);
 }
 
 void setRndStr(char *message) {
 	int i;
-	for (i=0;i<strlen(message);i++)
+	for (i=0;i<11;i++)
 		message[i] = rand()%256-128;
 }
 
 int crackOneWayHash(char * hashAlgo) {
-	char message1[12], message2[12];
+	char message1[11], message2[11];
 	unsigned char digt1[EVP_MAX_MD_SIZE], digt2[EVP_MAX_MD_SIZE];
 	
 	int count=0, i;
-	setRndStr(message1);
-    
+	setRndStr(message1);    	
 	getHash(hashAlgo, message1, digt1);
 	// run the crack
-	do {
-    	
+	do {    		
 		setRndStr(message2);
 		getHash(hashAlgo, message2, digt2);
 		count++;
-	} while (strncmp(digt1, digt2, 12)!=0);
-	
+	} while (strncmp(digt1, digt2, 3)!=0);	
 	printf("cracked after %d tries! same digest ", count, message1, message2);
-	for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
+	for(i = 0; i < 3; i++) printf("%02x", digt1[i]);
 	printf("\n");
 	return count;
 }
 
 int crackCollisionHash(char * hashAlgo) {
-	char message1[12], message2[12];
-	unsigned char digt1[EVP_MAX_MD_SIZE], digt2[EVP_MAX_MD_SIZE];
-	
+	char message1[11], message2[11];
+	unsigned char digt1[EVP_MAX_MD_SIZE], digt2[EVP_MAX_MD_SIZE];	
 	int count=0, i;
-	
-	do {
+	// run the crack
+	do {    	
 		setRndStr(message1);
 		getHash(hashAlgo, message1, digt1);
 		setRndStr(message2);
 		getHash(hashAlgo, message2, digt2);
 		count++;
-	} while (strncmp(digt1, digt2, 12)!=0);
+	} while (strncmp(digt1, digt2, 3)!=0);
 	printf("cracked after %d tries! same digest ", count);
-	for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
+	for(i = 0; i < 3; i++) printf("%02x", digt1[i]);
 	printf("\n");
 	return count;
 }
@@ -80,10 +74,10 @@ main(int argc, char *argv[])
 		hashAlgo = argv[1];
 	srand((int)time(0));	// init random seed
 	int i,count;
-	for (i=0,count=0;i<7;i++)
+	for (i=0,count=0;i<15;i++)
 		count+=crackCollisionHash(hashAlgo);
-	printf("average time cracking collision-free: %d \n", count/7);
-	for (i=0,count=0;i<7;i++)
+	printf("average time cracking collision-free: %d \n", count/15);
+	for (i=0,count=0;i<5;i++)
 		count+=crackOneWayHash(hashAlgo);
-	printf("average time cracking one-way: %d \n", count/7);
+	printf("average time cracking one-way: %d \n", count/5);
 }
