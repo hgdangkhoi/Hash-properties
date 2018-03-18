@@ -5,7 +5,7 @@
 
 const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,.-#'?!";
 
-void hash(char * hashAlgo, char *message, unsigned char *md_value) {
+void hashFunction(char * hashAlgo, char *message, unsigned char *md_value) {
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;	
 	int md_len, i;
@@ -32,39 +32,39 @@ void randomString(char *message) {
 	}
 }
 
-int crackOneWayHash(char * hashAlgo) {
+int oneWayProperty(char * hashAlgo) {
 	char message1[7], message2[7];
-	unsigned char digt1[EVP_MAX_MD_SIZE], digt2[EVP_MAX_MD_SIZE];
+	unsigned char hashValue1[EVP_MAX_MD_SIZE], hashValue2[EVP_MAX_MD_SIZE];
 	
 	int count=0, i;
 	randomString(message1);    	
-	hash(hashAlgo, message1, digt1);
-	// run the crack
+	hashFunction(hashAlgo, message1, hashValue1);
+	
 	do {    		
 		randomString(message2);
-		hash(hashAlgo, message2, digt2);
+		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
-	} while (strncmp(digt1, digt2, 3)!=0);	
-	printf("cracked after %d tries! same digest ", count, message1, message2);
-	for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
+	} while (strncmp(hashValue1, hashValue2, 3)!=0);	//compare 3 byte character, which is 24 bits 
+	printf("Cracked one way property after %d trials, message %s, %s", count, message1, message2);
+	//for(i = 0; i < 12; i++) printf("%02x", hashValue1[i]);
 	printf("\n");
 	return count;
 }
 
-int crackCollisionHash(char * hashAlgo) {
+int collisionFreeProperty(char * hashAlgo) {
 	char message1[7], message2[7];
-	unsigned char digt1[EVP_MAX_MD_SIZE], digt2[EVP_MAX_MD_SIZE];	
+	unsigned char hashValue1[EVP_MAX_MD_SIZE], hashValue2[EVP_MAX_MD_SIZE];	
 	int count=0, i;
-	// run the crack
+	
 	do {    	
 		randomString(message1);
-		hash(hashAlgo, message1, digt1);
+		hashFunction(hashAlgo, message1, hashValue1);
 		randomString(message2);
-		hash(hashAlgo, message2, digt2);
+		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
-	} while (strncmp(digt1, digt2, 3)!=0);
-	printf("cracked after %d tries! same digest ", count);
-	for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
+	} while (strncmp(hashValue1, hashValue2, 3)!=0);
+	printf("Cracked collision free property after %d trials, message %s, %s", count, message1, message2);
+	//for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
 	printf("\n");
 	return count;
 }
@@ -73,12 +73,14 @@ main(int argc, char *argv[])
 {
 	char *hashAlgo;
 	hashAlgo = argv[1];
-	//srand((int)time(0));	// init random seed
+	
 	int i,count;
-	for (i=0,count=0;i<9;i++)
-		count+=crackCollisionHash(hashAlgo);
-	printf("average time cracking collision-free: %d \n", count/9);
-	for (i=0,count=0;i<5;i++)
-		count+=crackOneWayHash(hashAlgo);
-	printf("average time cracking one-way: %d \n", count/5);
+	for (i=0,count=0;i<9;i++){
+		count+=collisionFreeProperty(hashAlgo);
+	}
+	printf("Average time to crack collision free property: %d \n", count/9);
+	for (i=0,count=0;i<5;i++){
+		count+=oneWayProperty(hashAlgo);
+	}
+	printf("Average time to crack one way property: %d \n", count/5);
 }
