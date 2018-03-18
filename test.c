@@ -49,7 +49,7 @@ int oneWayProperty(char * hashAlgo) {
 		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
 	} while (memcmp(hashValue1, hashValue2, 3)!=0);	//compare 3 byte character, which is 24 bits 
-	printf("Cracked one way property after %d trials", count);
+	printf("Cracked one way property after %d trials\n", count);
 	printf("Message 1: %s, hash: ", message1);
 	for(i = 0; i < 3; i++) {
 		printf("%02x", hashValue1[i]);
@@ -102,7 +102,7 @@ main(int argc, char *argv[])
 	}
 	end = clock();
 	time_taken = ((double)(end - start))/CLOCKS_PER_SEC;
-	printf("Average time to crack collision free property: %d \n", count/5);
+	printf("Average trials to crack collision free property: %d \n", count/5);
 	printf("Elapsed time: %f seconds\n", time_taken);
 	time_taken = 0.0;
 	start = clock();
@@ -111,6 +111,6 @@ main(int argc, char *argv[])
 	}
 	end = clock();
 	time_taken = ((double)(end - start))/CLOCKS_PER_SEC;
-	printf("Average time to crack one way property: %d \n", count/5);
+	printf("Average trials to crack one way property: %d \n", count/5);
 	printf("Elapsed time: %f seconds\n", time_taken);
 }
