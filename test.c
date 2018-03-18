@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/evp.h>
+#include <time.h>
 
 const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -92,14 +93,24 @@ main(int argc, char *argv[])
 {
 	char *hashAlgo;
 	hashAlgo = argv[1];
-	
+	clock_t start, end;
 	int i,count;
+	double time_taken = 0;
+	start = clock();
 	for (i=0,count=0;i<5;i++){
 		count+=collisionFreeProperty(hashAlgo);
 	}
+	end = clock();
+	time_taken = ((double)(end - start))/CLOCKS_PER_SEC;
 	printf("Average time to crack collision free property: %d \n", count/5);
+	printf("Elapsed time: %f seconds\n", time_taken);
+	time_taken = 0.0;
+	start = clock();
 	for (i=0,count=0;i<5;i++){
 		count+=oneWayProperty(hashAlgo);
 	}
+	end = clock();
+	time_taken = ((double)(end - start))/CLOCKS_PER_SEC;
 	printf("Average time to crack one way property: %d \n", count/5);
+	printf("Elapsed time: %f seconds\n", time_taken);
 }
