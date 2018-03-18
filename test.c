@@ -1,9 +1,11 @@
+// Khoi Hoang
+// CSC 250 - lab 2
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/evp.h>
 
-const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,.-#'?!";
+const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 void hashFunction(char * hashAlgo, char *message, unsigned char *md_value) {
 	EVP_MD_CTX *mdctx;
@@ -45,9 +47,16 @@ int oneWayProperty(char * hashAlgo) {
 		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
 	} while (strncmp(hashValue1, hashValue2, 3)!=0);	//compare 3 byte character, which is 24 bits 
-	printf("Cracked one way property after %d trials, message %s, %s", count, message1, message2);
-	//for(i = 0; i < 12; i++) printf("%02x", hashValue1[i]);
+	printf("Cracked one way property after %d trials", count);
+	printf("Message 1: %s, hash: ", message1);
+	for(i = 0; i < 12; i++) {
+		printf("%02x", hashValue1[i]);
+	}
 	printf("\n");
+	printf("Message 2: %s, hash: ", message2);
+	for(i = 0; i < 12; i++) {
+		printf("%02x", hashValue2[i]);
+	}
 	return count;
 }
 
@@ -63,8 +72,16 @@ int collisionFreeProperty(char * hashAlgo) {
 		hashFunction(hashAlgo, message2, hashValue2);
 		count++;
 	} while (strncmp(hashValue1, hashValue2, 3)!=0);
-	printf("Cracked collision free property after %d trials, message %s, %s", count, message1, message2);
-	//for(i = 0; i < 12; i++) printf("%02x", digt1[i]);
+	printf("Cracked collision free property after %d trials\n", count);
+	printf("Message 1: %s, hash: ", message1);
+	for(i = 0; i < 12; i++) {
+		printf("%02x", hashValue1[i]);
+	}
+	printf("\n");
+	printf("Message 2: %s, hash: ", message2);
+	for(i = 0; i < 12; i++) {
+		printf("%02x", hashValue2[i]);
+	}
 	printf("\n");
 	return count;
 }
