@@ -3,16 +3,19 @@
 #include <string.h>
 #include <openssl/evp.h>
 
-void getHash(char * hashAlgo, char *message, unsigned char *md_value) {
+const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,.-#'?!";
+
+void hash(char * hashAlgo, char *message, unsigned char *md_value) {
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;	
 	int md_len, i;
 	OpenSSL_add_all_digests();
 	md = EVP_get_digestbyname(hashAlgo);
-	if(!md) {
+	if(md == NULL) {
 		printf("Unknown message digest %s\n", hashAlgo);
 		exit(1);
 	}
+	//adapt from https://www.openssl.org/docs/manmaster/man3/EVP_DigestInit.html
 	mdctx = EVP_MD_CTX_create();
 	EVP_DigestInit_ex(mdctx, md, NULL);
 	EVP_DigestUpdate(mdctx, message, strlen(message));
@@ -21,23 +24,25 @@ void getHash(char * hashAlgo, char *message, unsigned char *md_value) {
 	
 }
 
-void setRndStr(char *message) {
+void randomString(char *message) {
 	int i;
-	for (i=0;i<sizeof(message);i++)
-		message[i] = rand()%256-128;
+	for (i=0;i<sizeof(message);i++){
+		int index = rand() / (RAND_MAX / (sizeof(charset)-1));
+		message[i] = charset[index];
+	}
 }
 
 int crackOneWayHash(char * hashAlgo) {
-	char message1[12], message2[12];
+	char message1[7], message2[7];
 	unsigned char digt1[EVP_MAX_MD_SIZE], digt2[EVP_MAX_MD_SIZE];
 	
 	int count=0, i;
-	setRndStr(message1);    	
-	getHash(hashAlgo, message1, digt1);
+	randomString(message1);    	
+	hash(hashAlgo, message1, digt1);
 	// run the crack
 	do {    		
-		setRndStr(message2);
-		getHash(hashAlgo, message2, digt2);
+		randomString(message2);
+		hash(hashAlgo, message2, digt2);
 		count++;
 	} while (strncmp(digt1, digt2, 3)!=0);	
 	printf("cracked after %d tries! same digest ", count, message1, message2);
@@ -47,15 +52,15 @@ int crackOneWayHash(char * hashAlgo) {
 }
 
 int crackCollisionHash(char * hashAlgo) {
-	char message1[12], message2[12];
+	char message1[7], message2[7];
 	unsigned char digt1[EVP_MAX_MD_SIZE], digt2[EVP_MAX_MD_SIZE];	
 	int count=0, i;
 	// run the crack
 	do {    	
-		setRndStr(message1);
-		getHash(hashAlgo, message1, digt1);
-		setRndStr(message2);
-		getHash(hashAlgo, message2, digt2);
+		randomString(message1);
+		hash(hashAlgo, message1, digt1);
+		randomString(message2);
+		hash(hashAlgo, message2, digt2);
 		count++;
 	} while (strncmp(digt1, digt2, 3)!=0);
 	printf("cracked after %d tries! same digest ", count);
@@ -67,12 +72,8 @@ int crackCollisionHash(char * hashAlgo) {
 main(int argc, char *argv[])
 {
 	char *hashAlgo;
-	if(!argv[1])
-		// set to md5 by default
-		hashAlgo = "md5";
-	else
-		hashAlgo = argv[1];
-	srand((int)time(0));	// init random seed
+	hashAlgo = argv[1];
+	//srand((int)time(0));	// init random seed
 	int i,count;
 	for (i=0,count=0;i<9;i++)
 		count+=crackCollisionHash(hashAlgo);
