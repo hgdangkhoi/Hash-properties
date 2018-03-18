@@ -35,7 +35,8 @@ void randomString(char *message) {
 }
 
 int oneWayProperty(char * hashAlgo) {
-	char message1[7], message2[7];
+	char message1[7] = {0};
+	char message2[7] = {0};
 	unsigned char hashValue1[EVP_MAX_MD_SIZE], hashValue2[EVP_MAX_MD_SIZE];
 	
 	int count=0, i;
@@ -61,7 +62,8 @@ int oneWayProperty(char * hashAlgo) {
 }
 
 int collisionFreeProperty(char * hashAlgo) {
-	char message1[7], message2[7];
+	char message1[7] = {0};
+	char message2[7] = {0};
 	unsigned char hashValue1[EVP_MAX_MD_SIZE], hashValue2[EVP_MAX_MD_SIZE];	
 	int count=0, i;
 	
@@ -92,10 +94,10 @@ main(int argc, char *argv[])
 	hashAlgo = argv[1];
 	
 	int i,count;
-	for (i=0,count=0;i<9;i++){
+	for (i=0,count=0;i<5;i++){
 		count+=collisionFreeProperty(hashAlgo);
 	}
-	printf("Average time to crack collision free property: %d \n", count/9);
+	printf("Average time to crack collision free property: %d \n", count/5);
 	for (i=0,count=0;i<5;i++){
 		count+=oneWayProperty(hashAlgo);
 	}
