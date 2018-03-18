@@ -17,10 +17,10 @@ void getHash(char * hashAlgo, char *message, unsigned char *md_value) {
 	mdctx = EVP_MD_CTX_create();
 	EVP_DigestInit_ex(mdctx, md, NULL);
 	EVP_DigestUpdate(mdctx, message, strlen(message));
-	EVP_DigestFinal_ex(mdctx, value, &md_len);
+	EVP_DigestFinal_ex(mdctx, md_value, &md_len);
 	EVP_MD_CTX_destroy(mdctx);
 	
-	strncpy(md_value, value, 12);
+	#strncpy(md_value, value, 12);
 }
 
 void setRndStr(char *message) {
